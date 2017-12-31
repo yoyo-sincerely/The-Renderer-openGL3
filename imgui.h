@@ -144,7 +144,7 @@ namespace ImGui
     IMGUI_API void          ShowUserGuide();                            // add basic help/info block (not a window): how to manipulate ImGui as a end-user (mouse/keyboard controls).
 
 	//renderer
-	IMGUI_API void			ShowRendererWindow(bool* p_open = NULL);	// create 
+	IMGUI_API void			ShowRendererWindow(bool* p_open = NULL);	// create renderer window
 
     // Window
     IMGUI_API bool          Begin(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0);                                                   // push window to the stack and start appending to it. see .cpp for details. return false when window is collapsed, so you can early out in your code. 'bool* p_open' creates a widget on the upper-right to close the window (which sets your bool to false).

@@ -102,9 +102,8 @@ int main(int, char**)
 
 		if (show_renderer)
 		{
-			ImGui::Begin("The Renderer", &show_renderer);
-			ImGui::Text("Hello from The Renderer!");
-			ImGui::End();
+			ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
+			ImGui::ShowRendererWindow(&show_renderer);
 		}
 
         // Rendering

@@ -45,3 +45,45 @@
 #endif
 
 #define IM_MAX(_A,_B)       (((_A) >= (_B)) ? (_A) : (_B))
+
+//-----------------------------------------------------------------------------
+// DEMO CODE
+//-----------------------------------------------------------------------------
+
+#if !defined(IMGUI_DISABLE_OBSOLETE_FUNCTIONS) && defined(IMGUI_DISABLE_TEST_WINDOWS) && !defined(IMGUI_DISABLE_RENDERER_WINDOWS)   // Obsolete name since 1.53, TEST->DEMO
+#define IMGUI_DISABLE_RENDERER_WINDOWS
+#endif
+
+#if !defined(IMGUI_DISABLE_RENDERER_WINDOWS)
+void ImGui::ShowRendererWindow(bool* p_open)
+{
+	static bool no_titlebar = false;
+	static bool no_scrollbar = false;
+	static bool no_menu = false;
+	static bool no_move = false;
+	static bool no_resize = false;
+	static bool no_collapse = false;
+	static bool no_close = false;
+
+
+	ImGuiWindowFlags window_flags = 0;
+	if (no_close) p_open = NULL;
+	
+	ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("The Renderer", p_open, window_flags))
+	{
+		// Early out if the window is collapsed, as an optimization.
+		ImGui::End();
+		return;
+	}
+	ImGui::PushItemWidth(-140);                                 // Right align, keep 140 pixels for labels
+
+	ImGui::Text("dear imgui says hello. (%s)", IMGUI_VERSION);
+
+
+
+	ImGui::End();
+}
+#else
+
+#endif
