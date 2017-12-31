@@ -56,6 +56,7 @@ int main(int, char**)
 
     bool show_demo_window = true;
     bool show_another_window = false;
+	bool show_renderer = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
@@ -79,6 +80,8 @@ int main(int, char**)
                 show_demo_window ^= 1;
             if (ImGui::Button("Another Window")) 
                 show_another_window ^= 1;
+			if (ImGui::Button("The Renderer"))
+				show_renderer ^= 1;
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         }
 
@@ -96,6 +99,13 @@ int main(int, char**)
             ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
             ImGui::ShowDemoWindow(&show_demo_window);
         }
+
+		if (show_renderer)
+		{
+			ImGui::Begin("The Renderer", &show_renderer);
+			ImGui::Text("Hello from The Renderer!");
+			ImGui::End();
+		}
 
         // Rendering
         int display_w, display_h;
