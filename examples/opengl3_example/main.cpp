@@ -65,7 +65,6 @@ int main(int, char**)
 	{
 		printf("Image load Error");
 	}
-
     bool show_demo_window = false;
     bool show_another_window = false;
 	bool show_renderer = true;

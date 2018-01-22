@@ -2,50 +2,7 @@
  * show rendered images 
  *
  */
-
-#include "imgui.h"
-#include <ctype.h>          // toupper, isprint
-#include <math.h>           // sqrtf, powf, cosf, sinf, floorf, ceilf
-#include <stdio.h>          // vsnprintf, sscanf, printf
-#include <stdlib.h>         // NULL, malloc, free, atoi
-#if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
-#include <stddef.h>         // intptr_t
-#else
-#include <stdint.h>         // intptr_t
-#endif
-
-#ifdef _MSC_VER
-#pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
-#define snprintf _snprintf
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wold-style-cast"             // warning : use of old-style cast                              // yes, they are more terse.
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"    // warning : 'xx' is deprecated: The POSIX name for this item.. // for strdup used in demo code (so user can copy & paste the code)
-#pragma clang diagnostic ignored "-Wint-to-void-pointer-cast"   // warning : cast to 'void *' from smaller integer type 'int'
-#pragma clang diagnostic ignored "-Wformat-security"            // warning : warning: format string is not a string literal
-#pragma clang diagnostic ignored "-Wexit-time-destructors"      // warning : declaration requires an exit-time destructor       // exit-time destruction order is undefined. if MemFree() leads to users code that has been disabled before exit it might cause problems. ImGui coding style welcomes static/globals.
-#if __has_warning("-Wreserved-id-macro")
-#pragma clang diagnostic ignored "-Wreserved-id-macro"          // warning : macro name is a reserved identifier                //
-#endif
-#elif defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"          // warning: cast to pointer from integer of different size
-#pragma GCC diagnostic ignored "-Wformat-security"              // warning : format string is not a string literal (potentially insecure)
-#pragma GCC diagnostic ignored "-Wdouble-promotion"             // warning: implicit conversion from 'float' to 'double' when passing argument to function
-#pragma GCC diagnostic ignored "-Wconversion"                   // warning: conversion to 'xxxx' from 'xxxx' may alter its value
-#if (__GNUC__ >= 6)
-#pragma GCC diagnostic ignored "-Wmisleading-indentation"       // warning: this 'if' clause does not guard this statement      // GCC 6.0+ only. See #883 on GitHub.
-#endif
-#endif
-
-// Play it nice with Windows users. Notepad in 2017 still doesn't display text data with Unix-style \n.
-#ifdef _WIN32
-#define IM_NEWLINE "\r\n"
-#else
-#define IM_NEWLINE "\n"
-#endif
-
-#define IM_MAX(_A,_B)       (((_A) >= (_B)) ? (_A) : (_B))
-
+#include "the_renderer.h"
 //-----------------------------------------------------------------------------
 // DEMO CODE
 //-----------------------------------------------------------------------------
@@ -55,11 +12,13 @@
 #endif
 
 #if !defined(IMGUI_DISABLE_RENDERER_WINDOWS)
+
+
 void ImGui::ShowRendererWindow(bool* p_open)
 {
 
 	static bool show_app_main_menu_bar = true;
-
+	static bool show_logger = true;
 
 	static bool no_titlebar = false;
 	static bool no_scrollbar = false;
@@ -71,6 +30,12 @@ void ImGui::ShowRendererWindow(bool* p_open)
 
 
 	ImGuiWindowFlags window_flags = 0;
+	if (no_titlebar)  window_flags |= ImGuiWindowFlags_NoTitleBar;
+	if (no_scrollbar) window_flags |= ImGuiWindowFlags_NoScrollbar;
+	if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
+	if (no_move)      window_flags |= ImGuiWindowFlags_NoMove;
+	if (no_resize)    window_flags |= ImGuiWindowFlags_NoResize;
+	if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
 	if (no_close) p_open = NULL;
 	
 	ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
@@ -84,17 +49,68 @@ void ImGui::ShowRendererWindow(bool* p_open)
 
 	ImGui::Text("the renderer. ImGui version is (%s)", IMGUI_VERSION);
 
+	// Menu
 	if (ImGui::BeginMenuBar())
 	{
 		if (ImGui::BeginMenu("Menu"))
 		{
-			ImGui::MenuItem("Main menu bar", NULL, &show_app_main_menu_bar);
-			ImGui::EndMenu;
+			ShowMenuFile();
+			ImGui::EndMenu();
 		}
+		ImGui::EndMenuBar();
 	}
-	
 
+	if (show_logger) ShowLogger(&show_logger);
 	ImGui::End();
+}
+
+static void ShowMenuFile() 
+{
+	if (ImGui::Button("load image"))
+	{
+		LoadImage();
+	}
+
+	if (ImGui::Button("show Logger"))
+	{
+		//show_logger ^= 1;
+	}
+}
+
+// Demonstrate creating a simple log window with basic filtering.
+static void ShowLogger(bool* p_open)
+{
+	g_Logger.Draw("Render Logger", p_open);
+}
+
+static void LoadImage()
+{
+	// Build texture atlas
+	//ImDrawList drawList;
+	int width, height, nrChannels;
+	unsigned char *pixels = stbi_load("../data/images/example.jpg", &width, &height, &nrChannels, 0);
+	if (pixels == NULL)
+	{
+		printf("Image load Error");
+		return;
+	}
+	//io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
+
+	// Upload texture to graphics system
+	GLint last_texture;
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+	glGenTextures(1, &g_FontTexture);
+	glBindTexture(GL_TEXTURE_2D, g_FontTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+	// Store our identifier
+	//io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
+	g_Logger.AddLog("texture id %d\n", g_FontTexture);
+
+	// Restore state
+	glBindTexture(GL_TEXTURE_2D, last_texture);
 }
 #else
 
