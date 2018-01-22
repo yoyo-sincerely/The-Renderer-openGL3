@@ -57,6 +57,10 @@
 #if !defined(IMGUI_DISABLE_RENDERER_WINDOWS)
 void ImGui::ShowRendererWindow(bool* p_open)
 {
+
+	static bool show_app_main_menu_bar = true;
+
+
 	static bool no_titlebar = false;
 	static bool no_scrollbar = false;
 	static bool no_menu = false;
@@ -78,9 +82,17 @@ void ImGui::ShowRendererWindow(bool* p_open)
 	}
 	ImGui::PushItemWidth(-140);                                 // Right align, keep 140 pixels for labels
 
-	ImGui::Text("dear imgui says hello. (%s)", IMGUI_VERSION);
+	ImGui::Text("the renderer. ImGui version is (%s)", IMGUI_VERSION);
 
-
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Menu"))
+		{
+			ImGui::MenuItem("Main menu bar", NULL, &show_app_main_menu_bar);
+			ImGui::EndMenu;
+		}
+	}
+	
 
 	ImGui::End();
 }

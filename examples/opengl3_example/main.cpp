@@ -9,6 +9,11 @@
 #include <GL/gl3w.h>    // This example is using gl3w to access OpenGL functions (because it is small). You may use glew/glad/glLoadGen/etc. whatever already works for you.
 #include <GLFW/glfw3.h>
 
+// simple image loader 
+// https://github.com/nothings/stb/blob/master/stb_image.h 
+#define STB_IMAGE_IMPLEMENTATION
+#include "../libs/stb_image/stb_image.h"
+
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "Error %d: %s\n", error, description);
@@ -26,7 +31,7 @@ int main(int, char**)
 #if __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "ImGui OpenGL3 example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "the Renderer", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
     gl3wInit();
@@ -54,7 +59,14 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
-    bool show_demo_window = true;
+	int width, height, nrChannels;
+	unsigned char *data = stbi_load("../data/images/example.jpg", &width, &height, &nrChannels, 0);
+	if (data == NULL)
+	{
+		printf("Image load Error");
+	}
+
+    bool show_demo_window = false;
     bool show_another_window = false;
 	bool show_renderer = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
