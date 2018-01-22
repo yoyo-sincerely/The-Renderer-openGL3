@@ -169,6 +169,7 @@
     <ClInclude Include="..\libs\gl3w\GL\glcorearb.h" />
     <ClInclude Include="..\libs\stb_image\stb_image.h" />
     <ClInclude Include="imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="Renderer\the_renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.txt" />

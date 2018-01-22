@@ -57,6 +57,9 @@
     <ClInclude Include="..\libs\stb_image\stb_image.h">
       <Filter>sources</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\the_renderer.h">
+      <Filter>sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.txt" />

@@ -127,7 +127,7 @@ struct ExampleAppLog
 static bool			g_ShowLogger = false;
 static GLuint       g_FontTexture = 0;
 static ExampleAppLog g_Logger;
-static ImVector<ImFontAtlas *> g_ImageID;
+static ImVector<GLint> g_ImageID;
 
 static void ShowLogger(bool* p_open);
 static void LoadImage();

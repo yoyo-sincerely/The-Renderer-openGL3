@@ -101,8 +101,7 @@ static void LoadImage()
 	// Store our identifier
 	//io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
 	g_Logger.AddLog("texture id %d\n", g_FontTexture);
-
-	g_ImageID.push_back((void *)(intptr_t)g_FontTexture);
+	g_ImageID.push_back(g_FontTexture);
 
 	// Restore state
 	glBindTexture(GL_TEXTURE_2D, last_texture);
@@ -110,12 +109,16 @@ static void LoadImage()
 
 static void ShowImage()
 {
-	ImTextureID texID = g_ImageID[0];
+	GLint texID = g_ImageID[0];
 	ImVec2 pos = ImGui::GetCursorScreenPos();
 	ImVec2 maxPos = ImVec2(pos.x + ImGui::GetWindowSize().x, pos.y + ImGui::GetWindowSize().y);
 
-	ImGui::Image((ImTextureID)texID, , uv0, uv1, ImColor(255, 255, 255, 55));
-	;
+	ImGui::GetWindowDrawList()->AddImage(
+		(void *)texID,
+		ImVec2(pos.x, pos.y),
+		ImVec2(maxPos),
+		ImVec2(0, 1), ImVec2(1, 0)
+	);
 }
 
 static void Logger(const char * logPattern, const char * content)
