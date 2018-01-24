@@ -88,7 +88,7 @@ struct ExampleAppLog
 
 	void    Draw(const char* title, bool* p_open = NULL)
 	{
-		ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(1024, 1024), ImGuiCond_FirstUseEver);
 		ImGui::Begin(title, p_open);
 		if (ImGui::Button("Clear")) Clear();
 		ImGui::SameLine();
@@ -124,16 +124,19 @@ struct ExampleAppLog
 	}
 };
 
-static bool			g_ShowLogger = false;
-static GLuint       g_FontTexture = 0;
-static ExampleAppLog g_Logger;
-static ImVector<ImFontAtlas *> g_ImageID;
+static bool						g_ShowLogger = false;
+static bool						g_IsLoadImage = false;
+static GLuint					g_FontTexture = 0;
+static ExampleAppLog			g_Logger;
+static ImVector<ImFontAtlas *>	g_ImageID;
+static bool						g_ShowImage = false;
 
 static void ShowLogger(bool* p_open);
-static void LoadImage();
-static void ShowImage();
+static void LoadingImageRGB();
+static void ShowImage(bool isLoaded);
 static void ShowMenuFile();
-static void Logger(const char * logPattern, const char * content);
+static void Logger(const char * logPattern, const char * content); 
+static void Logger(const char * logPattern, int content);
 
 #else
 
