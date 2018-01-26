@@ -11,6 +11,9 @@
     <Filter Include="gl3w">
       <UniqueIdentifier>{42f99867-3108-43b8-99d0-fabefaf1f2e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ray tracing">
+      <UniqueIdentifier>{f52d1d99-2713-4677-970d-6e2deb5867fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,6 +62,15 @@
     </ClInclude>
     <ClInclude Include="Renderer\the_renderer.h">
       <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTracing\Color.h">
+      <Filter>ray tracing</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTracing\Math.h">
+      <Filter>ray tracing</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTracing\Vector.h">
+      <Filter>ray tracing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

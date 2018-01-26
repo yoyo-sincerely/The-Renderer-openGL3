@@ -77,6 +77,13 @@ static void ShowLogger(bool* p_open)
 	g_Logger.Draw("Render Logger", p_open);
 }
 
+static void LoadingImage(const char * imagePath)
+{
+	//ImDrawList drawList;
+	int width, height, nrChannels;
+	unsigned char *pixels = stbi_load(imagePath, &width, &height, &nrChannels, 0);
+}
+
 static void LoadingImageRGB()
 {
 	// Build texture atlas
@@ -99,7 +106,6 @@ static void LoadingImageRGB()
 	glGenTextures(1, &g_FontTexture);
 	glBindTexture(GL_TEXTURE_2D, g_FontTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
