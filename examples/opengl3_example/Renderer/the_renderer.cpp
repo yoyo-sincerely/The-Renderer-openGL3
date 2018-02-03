@@ -2,6 +2,7 @@
  * show rendered images 
  *
  */
+//#include "Tra"
 #include "the_renderer.h"
 //-----------------------------------------------------------------------------
 // DEMO CODE
@@ -60,15 +61,39 @@ void ImGui::ShowRendererWindow(bool* p_open)
 	}
 
 	if (g_ShowLogger) ShowLogger(&g_ShowLogger);
-	if (g_ShowImage) ShowImage(g_IsLoadImage);
+	if (g_ShowImage) ShowImage();
 	ImGui::End();
 }
 
 static void ShowMenuFile() 
 {
 	if (ImGui::MenuItem("show log"))		g_ShowLogger = true;
-	if (ImGui::MenuItem("load image"))		LoadingImageRGB();
-	if (ImGui::MenuItem("show image"))		g_ShowImage ^= 1;
+	if (ImGui::MenuItem("load image"))	{	}
+	//if (ImGui::MenuItem("show image"))		g_ShowImage ^= 1;
+	if (ImGui::MenuItem("render test"))		Render();
+}
+
+static void RenderBITMAP()
+{
+	SetDefaultScene(&scene);
+	tracer = new RayTracer(&scene);
+}
+
+//test render
+static void Render()
+{
+	//init
+	SetDefaultScene(&scene);
+	tracer = new RayTracer(&scene);
+	ImFontAtlas * buffer = new ImFontAtlas;
+	buffer->TexWidth = 800;
+	buffer->TexHeight = 600;
+	buffer->TexPixelsRGBA32 = (unsigned int *)malloc(sizeof(buffer->TexPixelsRGBA32) * buffer->TexWidth * buffer->TexHeight);
+	g_Logger.AddLog("TexPixelsAlpha8 is %d \n", sizeof(buffer->TexPixelsRGBA32));
+
+	tracer->Render(buffer->TexPixelsRGBA32, buffer->TexWidth, buffer->TexHeight, sizeof(buffer->TexPixelsRGBA32), 5);
+
+	LoadingImageRGBA(buffer);
 }
 
 // Demonstrate creating a simple log window with basic filtering.
@@ -81,22 +106,21 @@ static void LoadingImage(const char * imagePath)
 {
 	//ImDrawList drawList;
 	int width, height, nrChannels;
-	unsigned char *pixels = stbi_load(imagePath, &width, &height, &nrChannels, 0);
+	ImFontAtlas * buffer = new ImFontAtlas;
+	buffer->TexPixelsAlpha8 = stbi_load(imagePath, &width, &height, &nrChannels, 0);
+	buffer->TexWidth = width;
+	buffer->TexHeight = height;
+	g_Logger.AddLog("[Loading Image] image width is : %d, image height is : %d, length is : %d\n", width, height, strlen((char *)buffer->TexPixelsAlpha8));
+	LoadingImageRGB(buffer);
 }
 
-static void LoadingImageRGB()
+static void LoadingImageRGBA(ImFontAtlas * texImAtlas)
 {
-	// Build texture atlas
-	//ImDrawList drawList;
-	int width, height, nrChannels;
-	unsigned char *pixels = stbi_load("../data/images/example.jpg", &width, &height, &nrChannels, 0);
-	//unsigned char *pixels = stbi_load("../data/images/dog.jpg", &width, &height, &nrChannels, 0);
-	if (pixels == NULL)
+	if (texImAtlas->TexPixelsRGBA32 == NULL)
 	{
 		Logger("pixels", "image loading error!");
 		return;
 	}
-	g_Logger.AddLog("[Loading Image] image width is : %d, image height is : %d, Channels is : %d, length is : %d\n", width, height, nrChannels, strlen((char *)pixels));
 
 	g_IsLoadImage = true;
 
@@ -107,29 +131,73 @@ static void LoadingImageRGB()
 	glBindTexture(GL_TEXTURE_2D, g_FontTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texImAtlas->TexWidth, texImAtlas->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, texImAtlas->TexPixelsRGBA32);
 
 	// Store our identifier
 	//io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
 	g_Logger.AddLog("texture id %d\n", g_FontTexture);
 
-	ImFontAtlas * texImAtlas = new ImFontAtlas;
 	texImAtlas->TexID = (void *)(intptr_t)g_FontTexture;
-	texImAtlas->TexHeight = height;
-	texImAtlas->TexWidth = width;
-	
-	g_ImageID.push_back(texImAtlas);
+	g_Image.push_back(texImAtlas);
 
 	// Restore state
 	glBindTexture(GL_TEXTURE_2D, last_texture);
-	g_Logger.AddLog("last_texture id %d\n", last_texture);
 }
 
-static void ShowImage(bool isLoaded)
+static void LoadingImageRGB(ImFontAtlas * texImAtlas)
 {
-	if (!isLoaded) return;
+	// Build texture atlas
+	//ImDrawList drawList;
+	//unsigned char *pixels = stbi_load("../data/images/dog.jpg", &width, &height, &nrChannels, 0);
+	if (texImAtlas->TexPixelsAlpha8 == NULL)
+	{
+		Logger("pixels", "image loading error!");
+		return;
+	}
 
-	ImFontAtlas *tex = g_ImageID[0];
+	g_IsLoadImage = true;
+
+	// Upload texture to graphics system
+	GLint last_texture;
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+	glGenTextures(1, &g_FontTexture);
+	glBindTexture(GL_TEXTURE_2D, g_FontTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texImAtlas->TexWidth, texImAtlas->TexHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, texImAtlas->TexPixelsAlpha8);
+
+	// Store our identifier
+	//io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
+	g_Logger.AddLog("texture id %d\n", g_FontTexture);
+
+	texImAtlas->TexID = (void *)(intptr_t)g_FontTexture;
+	
+	g_Image.push_back(texImAtlas);
+
+	// Restore state
+	glBindTexture(GL_TEXTURE_2D, last_texture);
+}
+
+//static void ShowImage()
+//{
+//	//if (!isLoaded) return;
+//
+//	if (g_Image.empty()) return;
+//
+//	ImFontAtlas *tex = g_Image[0];
+//	ImVec2 pos = ImGui::GetCursorScreenPos();
+//	ImVec2 maxPos = ImVec2(pos.x + ImGui::GetWindowSize().x, pos.y + ImGui::GetWindowSize().y);
+//
+//	ImGui::Image(tex->TexID, ImVec2((float)tex->TexWidth, (float)tex->TexHeight));
+//}
+
+static void ShowImage() 
+{
+	if (g_Image.empty()) return;
+
+	if (g_FontTexture == NULL) return;
+
+	ImFontAtlas *tex = g_Image[g_FontTexture];
 	ImVec2 pos = ImGui::GetCursorScreenPos();
 	ImVec2 maxPos = ImVec2(pos.x + ImGui::GetWindowSize().x, pos.y + ImGui::GetWindowSize().y);
 

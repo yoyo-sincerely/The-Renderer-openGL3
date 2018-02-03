@@ -159,6 +159,7 @@
     <ClCompile Include="..\libs\gl3w\GL\gl3w.c" />
     <ClCompile Include="imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RayTracing\RayTracer.cpp" />
     <ClCompile Include="Renderer\the_renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,8 +170,10 @@
     <ClInclude Include="..\libs\gl3w\GL\glcorearb.h" />
     <ClInclude Include="..\libs\stb_image\stb_image.h" />
     <ClInclude Include="imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="logger.h" />
     <ClInclude Include="RayTracing\Color.h" />
     <ClInclude Include="RayTracing\Math.h" />
+    <ClInclude Include="RayTracing\RayTracer.h" />
     <ClInclude Include="RayTracing\Vector.h" />
     <ClInclude Include="Renderer\the_renderer.h" />
   </ItemGroup>

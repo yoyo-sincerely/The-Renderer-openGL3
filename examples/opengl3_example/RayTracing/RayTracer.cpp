@@ -119,7 +119,7 @@ void RayTracer::Render(void* buffer, int width, int height, int stride, int maxd
 
 	auto proc = [&](int y)
 	{
-		auto prt = (unsigned int*)((char*)buffer + y * stride);
+		auto prt = (unsigned int*)((char *)buffer + y * stride);
 		auto cury = (halfh - y) * pfloath;
 		auto dir = camera.Direction + cury * camera.Y;
 		Ray ray = { camera.Position, Vector(), INFINITY };
@@ -128,6 +128,12 @@ void RayTracer::Render(void* buffer, int width, int height, int stride, int maxd
 			auto curx = (x - halfw) * pfloatw;
 			ray.Direction = (dir + curx * camera.X).Normalize();
 			ray.MaxDistance = INFINITY;
+			if (*prt == NULL)
+			{
+				//g_Logger.AddLog("prt is null !!!");
+				printf("prt is null !!!");
+				return;
+			}
 			*prt = Trace(ray, *scene, maxdepth).ToArgb();
 		}
 	};

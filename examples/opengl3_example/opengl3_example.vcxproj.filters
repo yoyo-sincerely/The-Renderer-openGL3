@@ -37,6 +37,9 @@
     <ClCompile Include="Renderer\the_renderer.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="RayTracing\RayTracer.cpp">
+      <Filter>ray tracing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\imconfig.h">
@@ -71,6 +74,12 @@
     </ClInclude>
     <ClInclude Include="RayTracing\Vector.h">
       <Filter>ray tracing</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTracing\RayTracer.h">
+      <Filter>ray tracing</Filter>
+    </ClInclude>
+    <ClInclude Include="logger.h">
+      <Filter>sources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

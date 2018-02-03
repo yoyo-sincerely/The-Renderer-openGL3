@@ -20,7 +20,9 @@
 #include <stdint.h>         // intptr_t
 #endif
 #include "imgui.h"
-#include "../../libs/stb_image/stb_image.h"
+#include "../../libs/stb_image/stb_image.h"		//loading image
+#include "examples\opengl3_example\RayTracing\RayTracer.h"
+#include "examples\opengl3_example\logger.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
@@ -64,76 +66,25 @@
 
 #if !defined(IMGUI_DISABLE_RENDERER_WINDOWS)
 
-struct ExampleAppLog
-{
-	ImGuiTextBuffer     Buf;
-	ImGuiTextFilter     Filter;
-	ImVector<int>       LineOffsets;        // Index to lines offset
-	bool                ScrollToBottom;
+Scene scene;
+RayTracer* tracer = nullptr;
 
-	void    Clear() { Buf.clear(); LineOffsets.clear(); }
 
-	void    AddLog(const char* fmt, ...) IM_FMTARGS(2)
-	{
-		int old_size = Buf.size();
-		va_list args;
-		va_start(args, fmt);
-		Buf.appendfv(fmt, args);
-		va_end(args);
-		for (int new_size = Buf.size(); old_size < new_size; old_size++)
-			if (Buf[old_size] == '\n')
-				LineOffsets.push_back(old_size);
-		ScrollToBottom = true;
-	}
-
-	void    Draw(const char* title, bool* p_open = NULL)
-	{
-		ImGui::SetNextWindowSize(ImVec2(1024, 1024), ImGuiCond_FirstUseEver);
-		ImGui::Begin(title, p_open);
-		if (ImGui::Button("Clear")) Clear();
-		ImGui::SameLine();
-		bool copy = ImGui::Button("Copy");
-		ImGui::SameLine();
-		Filter.Draw("Filter", -100.0f);
-		ImGui::Separator();
-		ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
-		if (copy) ImGui::LogToClipboard();
-
-		if (Filter.IsActive())
-		{
-			const char* buf_begin = Buf.begin();
-			const char* line = buf_begin;
-			for (int line_no = 0; line != NULL; line_no++)
-			{
-				const char* line_end = (line_no < LineOffsets.Size) ? buf_begin + LineOffsets[line_no] : NULL;
-				if (Filter.PassFilter(line, line_end))
-					ImGui::TextUnformatted(line, line_end);
-				line = line_end && line_end[1] ? line_end + 1 : NULL;
-			}
-		}
-		else
-		{
-			ImGui::TextUnformatted(Buf.begin());
-		}
-
-		if (ScrollToBottom)
-			ImGui::SetScrollHere(1.0f);
-		ScrollToBottom = false;
-		ImGui::EndChild();
-		ImGui::End();
-	}
-};
-
-static bool						g_ShowLogger = false;
+static bool						g_ShowLogger = true;
 static bool						g_IsLoadImage = false;
 static GLuint					g_FontTexture = 0;
-static ExampleAppLog			g_Logger;
-static ImVector<ImFontAtlas *>	g_ImageID;
-static bool						g_ShowImage = false;
+static ImVector<ImFontAtlas *>	g_Image;
+static bool						g_ShowImage = true;
+//static GLuint					g_ShowingImage = 0;
 
+void Render();
 static void ShowLogger(bool* p_open);
-static void LoadingImageRGB();
-static void ShowImage(bool isLoaded);
+static void LoadingImageRGB(ImFontAtlas * texImAtlas);
+static void LoadingImageRGBA(ImFontAtlas * texImAtlas);
+static void LoadingImage(const char * imagePath);
+static void ShowImage();
+//static void ShowImage(ImTextureID);
+static void RenderBITMAP();
 static void ShowMenuFile();
 static void Logger(const char * logPattern, const char * content); 
 static void Logger(const char * logPattern, int content);
