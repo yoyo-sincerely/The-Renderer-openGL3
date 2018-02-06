@@ -85,18 +85,16 @@ static void RenderTest()
 	testBuffer->TexPixelsRGBA32 = (unsigned int *)malloc(sizeof(testBuffer->TexPixelsRGBA32) * testBuffer->TexWidth * testBuffer->TexHeight);
 	for (int i = 0; i < testBuffer->TexHeight; i++)
 	{
-		auto prt = (unsigned int *)((char *)testBuffer->TexPixelsRGBA32 + i * sizeof(testBuffer->TexPixelsRGBA32));
-		for (int j = 0; j < testBuffer->TexWidth; j++)
+		auto prt = (unsigned int *)((char *)testBuffer->TexPixelsRGBA32 + i * sizeof(testBuffer->TexPixelsRGBA32) * testBuffer->TexWidth);
+		for (int j = 0; j < testBuffer->TexWidth; j++ , prt++)
 		{
-			double r = 0.5;
-			double g = 0.5;
-			double b = 0.5;
-			if (*prt == NULL)
-			{
-				g_Logger.AddLog("prt is null!");
-				return;
-			}
-			*prt = (((unsigned int)255 * 256 + (unsigned int)(r * 255.0f)) * 256 + (unsigned int)(g * 255.0f)) * 256 + (unsigned int)(b * 255.0f);
+			double r = 1;
+			double g = 1;
+			double b = 1;
+			*prt = ((255 & 0xFF) << 24) | //alpha
+				(((int)(r * 255) & 0xFF) << 16) | //red
+				(((int)(g * 255) & 0xFF) << 8) | //green
+				(((int)(b * 255) & 0xFF) << 0); //blue
 		}
 	}
 
@@ -119,7 +117,7 @@ static void Render()
 	buffer->TexPixelsRGBA32 = (unsigned int *)malloc(sizeof(buffer->TexPixelsRGBA32) * buffer->TexWidth * buffer->TexHeight);
 	g_Logger.AddLog("TexPixelsAlpha8 is %d \n", sizeof(buffer->TexPixelsRGBA32));
 
-	tracer->Render(buffer->TexPixelsRGBA32, buffer->TexWidth, buffer->TexHeight, sizeof(buffer->TexPixelsRGBA32), 5);
+	tracer->Render(buffer->TexPixelsRGBA32, buffer->TexWidth, buffer->TexHeight, sizeof(buffer->TexPixelsRGBA32) * buffer->TexWidth, 5);
 
 	LoadingImageRGBA(buffer);
 }
@@ -208,13 +206,14 @@ static void LoadingImageRGB(ImFontAtlas * texImAtlas)
 static void ShowImage() 
 {
 	if (g_Image.empty()) return;
-
 	if (g_FontTexture == NULL) return;
-
 	ImFontAtlas *tex = g_Image.back();
 
-	if(tex != NULL)
+	if (tex != NULL) {
 		ImGui::Image(tex->TexID, ImVec2((float)tex->TexWidth, (float)tex->TexHeight));
+	}else {
+		g_Logger.AddLog("tex is NULL!!! \n");
+	}
 }
 #else
 

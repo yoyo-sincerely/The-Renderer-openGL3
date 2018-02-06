@@ -126,7 +126,11 @@ public:
 			g *= maxf;
 			b *= maxf;
 		}
-		return (((unsigned int) 255 * 256 + (unsigned int) (r * 255.0f)) * 256 + (unsigned int) (g * 255.0f)) * 256 + (unsigned int) (b * 255.0f);
+		//return (((unsigned int) 255 * 256 + (unsigned int) (r * 255.0f)) * 256 + (unsigned int) (g * 255.0f)) * 256 + (unsigned int) (b * 255.0f);
+		return ((255 & 0xFF) << 24) | //alpha
+			(((int)(r * 255) & 0xFF) << 16) | //red
+			(((int)(g * 255) & 0xFF) << 8) | //green
+			(((int)(b * 255) & 0xFF) << 0); //blue
 	}
 
 	unsigned int ToArgb(float gamma) const
