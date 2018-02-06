@@ -89,12 +89,12 @@ static void RenderTest()
 		for (int j = 0; j < testBuffer->TexWidth; j++ , prt++)
 		{
 			double r = 1;
-			double g = 1;
-			double b = 1;
+			double g = 0;
+			double b = 0;
 			*prt = ((255 & 0xFF) << 24) | //alpha
-				(((int)(r * 255) & 0xFF) << 16) | //red
+				(((int)(b * 255) & 0xFF) << 16) | //blue
 				(((int)(g * 255) & 0xFF) << 8) | //green
-				(((int)(b * 255) & 0xFF) << 0); //blue
+				(((int)(r * 255) & 0xFF) << 0); //red
 		}
 	}
 
@@ -159,11 +159,8 @@ static void LoadingImageRGBA(ImFontAtlas * texImAtlas)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texImAtlas->TexWidth, texImAtlas->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, texImAtlas->TexPixelsRGBA32);
 
 	// Store our identifier
-	//io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
 	g_Logger.AddLog("texture id %d\n", g_FontTexture);
-
 	texImAtlas->TexID = (void *)(intptr_t)g_FontTexture;
-
 	g_Image.push_back(texImAtlas);
 
 	// Restore state
@@ -192,11 +189,8 @@ static void LoadingImageRGB(ImFontAtlas * texImAtlas)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texImAtlas->TexWidth, texImAtlas->TexHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, texImAtlas->TexPixelsAlpha8);
 
 	// Store our identifier
-	//io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
 	g_Logger.AddLog("texture id %d\n", g_FontTexture);
-
 	texImAtlas->TexID = (void *)(intptr_t)g_FontTexture;
-	
 	g_Image.push_back(texImAtlas);
 
 	// Restore state
