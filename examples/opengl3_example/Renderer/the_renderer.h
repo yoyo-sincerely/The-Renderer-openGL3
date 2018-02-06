@@ -74,8 +74,7 @@ static bool						g_ShowLogger = true;
 static bool						g_IsLoadImage = false;
 static GLuint					g_FontTexture = 0;
 static ImVector<ImFontAtlas *>	g_Image;
-static bool						g_ShowImage = true;
-//static GLuint					g_ShowingImage = 0;
+static bool						g_ShowImage = false;
 
 void Render();
 static void ShowLogger(bool* p_open);
@@ -84,10 +83,9 @@ static void LoadingImageRGBA(ImFontAtlas * texImAtlas);
 static void LoadingImage(const char * imagePath);
 static void ShowImage();
 //static void ShowImage(ImTextureID);
+static void RenderTest();
 static void RenderBITMAP();
 static void ShowMenuFile();
-static void Logger(const char * logPattern, const char * content); 
-static void Logger(const char * logPattern, int content);
 
 #else
 

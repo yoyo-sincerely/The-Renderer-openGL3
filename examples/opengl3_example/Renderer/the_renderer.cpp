@@ -68,15 +68,43 @@ void ImGui::ShowRendererWindow(bool* p_open)
 static void ShowMenuFile() 
 {
 	if (ImGui::MenuItem("show log"))		g_ShowLogger = true;
-	if (ImGui::MenuItem("load image"))	{	}
-	//if (ImGui::MenuItem("show image"))		g_ShowImage ^= 1;
-	if (ImGui::MenuItem("render test"))		Render();
+	if (ImGui::MenuItem("show/close image"))	
+	{
+		g_ShowImage ^= 1;
+	}
+	if (ImGui::MenuItem("render test"))		RenderTest();
+	if (ImGui::MenuItem("render"))		Render();
 }
 
+static void RenderTest()
+{
+	ImFontAtlas * testBuffer = new ImFontAtlas;
+	testBuffer->TexWidth = 100;
+	testBuffer->TexHeight = 100;
+
+	testBuffer->TexPixelsRGBA32 = (unsigned int *)malloc(sizeof(testBuffer->TexPixelsRGBA32) * testBuffer->TexWidth * testBuffer->TexHeight);
+	for (int i = 0; i < testBuffer->TexHeight; i++)
+	{
+		auto prt = (unsigned int *)((char *)testBuffer->TexPixelsRGBA32 + i * sizeof(testBuffer->TexPixelsRGBA32));
+		for (int j = 0; j < testBuffer->TexWidth; j++)
+		{
+			double r = 0.5;
+			double g = 0.5;
+			double b = 0.5;
+			if (*prt == NULL)
+			{
+				g_Logger.AddLog("prt is null!");
+				return;
+			}
+			*prt = (((unsigned int)255 * 256 + (unsigned int)(r * 255.0f)) * 256 + (unsigned int)(g * 255.0f)) * 256 + (unsigned int)(b * 255.0f);
+		}
+	}
+
+	LoadingImageRGBA(testBuffer);
+}
 static void RenderBITMAP()
 {
-	SetDefaultScene(&scene);
-	tracer = new RayTracer(&scene);
+
 }
 
 //test render
@@ -118,7 +146,6 @@ static void LoadingImageRGBA(ImFontAtlas * texImAtlas)
 {
 	if (texImAtlas->TexPixelsRGBA32 == NULL)
 	{
-		Logger("pixels", "image loading error!");
 		return;
 	}
 
@@ -138,6 +165,7 @@ static void LoadingImageRGBA(ImFontAtlas * texImAtlas)
 	g_Logger.AddLog("texture id %d\n", g_FontTexture);
 
 	texImAtlas->TexID = (void *)(intptr_t)g_FontTexture;
+
 	g_Image.push_back(texImAtlas);
 
 	// Restore state
@@ -151,7 +179,6 @@ static void LoadingImageRGB(ImFontAtlas * texImAtlas)
 	//unsigned char *pixels = stbi_load("../data/images/dog.jpg", &width, &height, &nrChannels, 0);
 	if (texImAtlas->TexPixelsAlpha8 == NULL)
 	{
-		Logger("pixels", "image loading error!");
 		return;
 	}
 
@@ -178,40 +205,16 @@ static void LoadingImageRGB(ImFontAtlas * texImAtlas)
 	glBindTexture(GL_TEXTURE_2D, last_texture);
 }
 
-//static void ShowImage()
-//{
-//	//if (!isLoaded) return;
-//
-//	if (g_Image.empty()) return;
-//
-//	ImFontAtlas *tex = g_Image[0];
-//	ImVec2 pos = ImGui::GetCursorScreenPos();
-//	ImVec2 maxPos = ImVec2(pos.x + ImGui::GetWindowSize().x, pos.y + ImGui::GetWindowSize().y);
-//
-//	ImGui::Image(tex->TexID, ImVec2((float)tex->TexWidth, (float)tex->TexHeight));
-//}
-
 static void ShowImage() 
 {
 	if (g_Image.empty()) return;
 
 	if (g_FontTexture == NULL) return;
 
-	ImFontAtlas *tex = g_Image[g_FontTexture];
-	ImVec2 pos = ImGui::GetCursorScreenPos();
-	ImVec2 maxPos = ImVec2(pos.x + ImGui::GetWindowSize().x, pos.y + ImGui::GetWindowSize().y);
+	ImFontAtlas *tex = g_Image.back();
 
-	ImGui::Image(tex->TexID, ImVec2((float)tex->TexWidth, (float)tex->TexHeight));
-}
-
-static void Logger(const char * logPattern, const char * content)
-{
-	g_Logger.AddLog("[%s]  %s\n", logPattern, content);
-}
-
-static void Logger(const char * logPattern, int content)
-{
-	g_Logger.AddLog("[%s]  %d\n", logPattern, content);
+	if(tex != NULL)
+		ImGui::Image(tex->TexID, ImVec2((float)tex->TexWidth, (float)tex->TexHeight));
 }
 #else
 
